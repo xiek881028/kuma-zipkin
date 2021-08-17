@@ -12,17 +12,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiek881028/kuma-bootstrap.git"
+    "url": "git+https://github.com/xiek881028/kuma-zipkin.git"
   },
   "bugs": {
-    "url": "https://github.com/xiek881028/kuma-bootstrap/issues"
+    "url": "https://github.com/xiek881028/kuma-zipkin/issues"
   },
-  "homepage": "https://github.com/xiek881028/kuma-bootstrap#readme",
+  "homepage": "https://github.com/xiek881028/kuma-zipkin#readme",
   "engines": {
     "node": ">= 14.15.0"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "zipkin": "^0.22.0"
-  }
+  },
+  "file": [
+    "index.js",
+    "src"
+  ]
 }
