@@ -1,0 +1,28 @@
+{
+  "name": "kuma-zipkin",
+  "version": "0.1.0",
+  "description": "koa自用zipkin日志插件",
+  "main": "index.js",
+  "author": "xiek <285985285@qq.com>",
+  "license": "996.icu",
+  "scripts": {},
+  "keywords": [
+    "kuma",
+    "zipkin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiek881028/kuma-bootstrap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xiek881028/kuma-bootstrap/issues"
+  },
+  "homepage": "https://github.com/xiek881028/kuma-bootstrap#readme",
+  "engines": {
+    "node": ">= 14.15.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "zipkin": "^0.22.0"
+  }
+}
