@@ -62,6 +62,7 @@ module.exports = function koaMiddleware({
   ignore = [],
   requestLog,
   responseLog,
+  setHead = true,
 }) {
   const instrumentation = new KumaInstrumentation({
     tracer,
@@ -146,9 +147,9 @@ module.exports = function koaMiddleware({
                 ctx,
                 id,
               })
-            : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${
-                parentSpanId
-              }]\n${(method + "").toUpperCase()} ${path}\norigin: [from ${
+            : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${parentSpanId}]\n${(
+                method + ""
+              ).toUpperCase()} ${path}\norigin: [from ${
                 ctx.ip
               } to ${host}]${queryText(ctx.query, "query")}${queryText(
                 ctx.request.body,
@@ -184,26 +185,28 @@ module.exports = function koaMiddleware({
                     ctx,
                     id,
                   })
-                : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${
-                    parentSpanId
-                  }]\n${(method + "").toUpperCase()} ${matchedPath}\ntime: ${
+                : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${parentSpanId}]\n${(
+                    method + ""
+                  ).toUpperCase()} ${matchedPath}\ntime: ${
                     (now() - id.startTime) / 1000
                   }ms\nstatus: ${ctx.status} <${
                     ctx.type
                   }>\n${resBody}dst: 客户端 响应\n`
             );
-          ctx.set("X-B3-TraceId", traceId);
-          ctx.set("X-B3-SpanId", spanId);
-          ctx.set("X-B3-ParentSpanId", parentSpanId);
+          if (setHead) {
+            ctx.set("X-B3-TraceId", traceId);
+            ctx.set("X-B3-SpanId", spanId);
+            ctx.set("X-B3-ParentSpanId", parentSpanId);
+          }
         });
       };
 
       ctx.console = {};
-      ['error', 'info', 'warn', 'debug'].map((item) => {
+      ["error", "info", "warn", "debug"].map((item) => {
         ctx.console[item] = (...args) => {
           ctx.logger[item](
-            `[traceId=${traceId ?? ''}, spanId=${spanId ?? ''}, parentSpanId=${
-              parentSpanId.toString() ?? ''
+            `[traceId=${traceId ?? ""}, spanId=${spanId ?? ""}, parentSpanId=${
+              parentSpanId.toString() ?? ""
             }]\n`,
             ...args
           );
@@ -218,7 +221,7 @@ module.exports = function koaMiddleware({
             message ||
             (error.isAxiosError
               ? error.response?.data?.message
-              : error.message || '系统错误'),
+              : error.message || "系统错误"),
         };
       };
 
