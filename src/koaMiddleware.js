@@ -147,7 +147,7 @@ module.exports = function koaMiddleware({
                 ctx,
                 id,
               })
-            : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${parentSpanId}]\n${(
+            : `[${serviceName},${traceId},${spanId},${parentSpanId}]\n${(
                 method + ""
               ).toUpperCase()} ${path}\norigin: [from ${
                 ctx.ip
@@ -185,7 +185,7 @@ module.exports = function koaMiddleware({
                     ctx,
                     id,
                   })
-                : `[traceId=${traceId}, spanId=${spanId}, parentSpanId=${parentSpanId}]\n${(
+                : `[${serviceName},${traceId},${spanId},${parentSpanId}]\n${(
                     method + ""
                   ).toUpperCase()} ${matchedPath}\ntime: ${
                     (now() - id.startTime) / 1000

@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { InetAddress } = require("zipkin");
+const { InetAddress, ExplicitContext, ConsoleRecorder } = require("zipkin");
 const { now: zipkinNow } = require("zipkin/src/time");
 
 const isJson = (it) => {
@@ -31,12 +31,23 @@ const key2LowerCase = (json = {}) => {
 module.exports = (_cfg = {}) => {
   const {
     remoteServiceName,
+    serviceName,
     ctx: { tracer, logger, ip },
     requestLog,
     responseLog,
     ...other
   } = _cfg;
-  const { traceId, spanId, parentSpanId } = tracer?.id ?? {};
+  const { traceId, spanId, parentSpanId } =
+    tracer?.id ??
+    (() => {
+      const ctxImpl = new ExplicitContext();
+      const recorder = new ConsoleRecorder();
+      return new Tracer({
+        recorder,
+        ctxImpl,
+        localServiceName: "",
+      });
+    })();
   const Axios = axios.create({
     ...other,
   });
@@ -60,9 +71,7 @@ module.exports = (_cfg = {}) => {
           config,
         })
       : logger.info(
-          `[traceId=${traceId ?? ""}, spanId=${spanId ?? ""}, parentSpanId=${
-            parentSpanId.toString() ?? ""
-          }]\n${config.method.toUpperCase()} ${
+          `[${serviceName ?? ''},${traceId},${spanId},${parentSpanId.toString()}]\n${config.method.toUpperCase()} ${
             config.url
           }\norigin: [from ${ip} to ${host}]${queryText(
             config.params,
@@ -83,18 +92,21 @@ module.exports = (_cfg = {}) => {
   // 响应拦截
   Axios.interceptors.response.use((config) => {
     const {
-      "x-b3-traceid": traceId,
-      "x-b3-spanid": spanId,
-      "x-b3-parentspanid": parentSpanId,
+      "x-b3-traceid": _traceId,
+      "x-b3-spanid": _spanId,
+      "x-b3-parentspanid": _parentSpanId,
       "content-type": type,
     } = key2LowerCase(config.headers ?? {});
     const data = queryText(config?.data, "data");
+    const resTraceId = _traceId ?? traceId;
+    const resSpanId = _spanId ?? spanId;
+    const resParentSpanId = _parentSpanId ?? parentSpanId.toString();
     responseLog && responseLog instanceof Function
       ? responseLog({
           status: config.status,
-          traceId,
-          spanId,
-          parentSpanId,
+          traceId: resTraceId,
+          spanId: resSpanId,
+          parentSpanId: resParentSpanId,
           method: config.request.method,
           url: config.request.path,
           time: zipkinNow() - config.config.startTime,
@@ -106,9 +118,9 @@ module.exports = (_cfg = {}) => {
       : logger[
           [200, 204].some((item) => item === config.status) ? "info" : "error"
         ](
-          `[traceId=${traceId ?? ""}, spanId=${spanId ?? ""}, parentSpanId=${
-            parentSpanId ?? ""
-          }]\n${config.request.method} ${config.request.path}\ntime: ${
+          `[${serviceName ?? ''},${resTraceId},${resSpanId},${resParentSpanId}]\n${
+            config.request.method
+          } ${config.request.path}\ntime: ${
             (zipkinNow() - config.config.startTime) / 1000
           }ms\nstatus: ${config.status} <${type ?? "undefined"}>${
             data.length > 500
