@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { InetAddress, ExplicitContext, ConsoleRecorder } = require("zipkin");
+const { InetAddress, ExplicitContext, ConsoleRecorder, Tracer } = require("zipkin");
 const { now: zipkinNow } = require("zipkin/src/time");
 
 const isJson = (it) => {
@@ -42,11 +42,11 @@ module.exports = (_cfg = {}) => {
     (() => {
       const ctxImpl = new ExplicitContext();
       const recorder = new ConsoleRecorder();
-      return new Tracer({
+      return (new Tracer({
         recorder,
         ctxImpl,
         localServiceName: "",
-      });
+      })).id;
     })();
   const Axios = axios.create({
     ...other,
