@@ -133,28 +133,27 @@ module.exports = function koaMiddleware({
         console.info(
           requestLog && requestLog instanceof Function
             ? requestLog({
-                traceId,
-                spanId,
-                parentSpanId,
-                method,
-                url: path,
-                ip: ctx.ip,
-                host,
-                query: ctx.query,
-                data: ctx.request.body,
-                params: ctx.params,
-                serviceName,
-                ctx,
-                id,
-              })
+              traceId,
+              spanId,
+              parentSpanId,
+              method,
+              url: path,
+              ip: ctx.ip,
+              host,
+              query: ctx.query,
+              data: ctx.request.body,
+              params: ctx.params,
+              serviceName,
+              ctx,
+              id,
+            })
             : `[${serviceName},${traceId},${spanId},${parentSpanId}]\n${(
-                method + ""
-              ).toUpperCase()} ${path}\norigin: [from ${
-                ctx.ip
-              } to ${host}]${queryText(ctx.query, "query")}${queryText(
-                ctx.request.body,
-                "data"
-              )}${queryText(ctx.params, "params")}\nsource: 客户端 请求\n`
+              method + ""
+            ).toUpperCase()} ${path}\norigin: [from ${ctx.ip
+            } to ${host}]${queryText(ctx.query, "query")}${queryText(
+              ctx.request.body,
+              "data"
+            )}${queryText(ctx.params, "params")}\nsource: 客户端 请求\n`
         );
 
       const recordResponse = () => {
@@ -172,26 +171,28 @@ module.exports = function koaMiddleware({
             ](
               responseLog && responseLog instanceof Function
                 ? responseLog({
-                    status: ctx.status,
-                    traceId,
-                    spanId,
-                    parentSpanId,
-                    method,
-                    url: matchedPath,
-                    time: now() - id.startTime,
-                    type: ctx.type,
-                    data: ctx.body,
-                    serviceName,
-                    ctx,
-                    id,
-                  })
+                  status: ctx.status,
+                  traceId,
+                  spanId,
+                  parentSpanId,
+                  method,
+                  url: matchedPath,
+                  time: now() - id.startTime,
+                  type: ctx.type,
+                  data: ctx.body,
+                  serviceName,
+                  ctx,
+                  id,
+                })
                 : `[${serviceName},${traceId},${spanId},${parentSpanId}]\n${(
-                    method + ""
-                  ).toUpperCase()} ${matchedPath}\ntime: ${
-                    (now() - id.startTime) / 1000
-                  }ms\nstatus: ${ctx.status} <${
-                    ctx.type
-                  }>\n${resBody}dst: 客户端 响应\n`
+                  method + ""
+                ).toUpperCase()} ${matchedPath}\ntime: ${(now() - id.startTime) / 1000
+                }ms\nstatus: ${ctx.status} <${ctx.type
+                }>\n${resBody.length > 500
+                  ? `${resBody.substr(0, 500)} <data长度为${resBody.length
+                  }，只保留500字符>`
+                  : resBody
+                }dst: 客户端 响应\n`
             );
           if (setHead) {
             ctx.set("X-B3-TraceId", traceId);
@@ -205,8 +206,7 @@ module.exports = function koaMiddleware({
       ["error", "info", "warn", "debug"].map((item) => {
         ctx.console[item] = (...args) => {
           ctx.logger[item](
-            `[traceId=${traceId ?? ""}, spanId=${spanId ?? ""}, parentSpanId=${
-              parentSpanId.toString() ?? ""
+            `[traceId=${traceId ?? ""}, spanId=${spanId ?? ""}, parentSpanId=${parentSpanId.toString() ?? ""
             }]\n`,
             ...args
           );
