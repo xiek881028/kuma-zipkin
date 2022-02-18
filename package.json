@@ -1,6 +1,6 @@
 {
   "name": "kuma-zipkin",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "koa自用zipkin日志插件",
   "main": "index.js",
   "author": "xiek <285985285@qq.com>",

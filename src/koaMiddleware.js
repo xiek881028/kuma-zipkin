@@ -192,7 +192,7 @@ module.exports = function koaMiddleware({
                   ? `${resBody.substr(0, 500)} <data长度为${resBody.length
                   }，只保留500字符>`
                   : resBody
-                }dst: 客户端 响应\n`
+                }\ndst: 客户端 响应\n`
             );
           if (setHead) {
             ctx.set("X-B3-TraceId", traceId);
