@@ -6,6 +6,7 @@ const {
   ConsoleRecorder,
   ExplicitContext,
 } = require("zipkin");
+const validationError = require('./validationError.js');
 
 const parseRequestUrl = require("zipkin/src/parseUrl");
 const { now, hrtime } = require("zipkin/src/time");
@@ -218,10 +219,11 @@ module.exports = function koaMiddleware({
         ctx.status = error.isAxiosError ? error.response.status : status;
         ctx.body = {
           message:
-            message ||
-            (error.isAxiosError
-              ? error.response?.data?.message
-              : error.message || "系统错误"),
+            error instanceof validationError ? error.message :
+              (message ||
+                (error.isAxiosError
+                  ? error.response?.data?.message
+                  : error.message || "系统错误")),
         };
       };
 
